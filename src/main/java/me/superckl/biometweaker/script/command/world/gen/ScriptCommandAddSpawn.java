@@ -10,7 +10,7 @@ import me.superckl.biometweaker.script.object.TweakerScriptObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.registries.ForgeRegistries;
 
 @AutoRegister(classes = {BiomesScriptObject.class, TweakerScriptObject.class}, name = "addSpawn")
 public class ScriptCommandAddSpawn extends StagedScriptCommand{

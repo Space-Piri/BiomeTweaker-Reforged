@@ -1,20 +1,13 @@
 package me.superckl.biometweaker;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
 import com.google.common.collect.Lists;
@@ -55,15 +48,16 @@ import me.superckl.biometweaker.script.object.effect.MobEffectScriptObject;
 import me.superckl.biometweaker.util.RegistryNameHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biome.Precipitation;
+import net.minecraft.world.level.biome.Biome.ClimateSettings;
 import net.minecraft.world.level.biome.Biome.TemperatureModifier;
-import net.minecraftforge.forgespi.language.ModFileScanData;
-import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforgespi.language.ModFileScanData;
+import net.neoforged.neoforgespi.language.ModFileScanData.AnnotationData;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class ScriptSetup {
 
-	public static void setupScripts(final Collection<ModFileScanData> scanData) {
+	public static void setupScripts(final List<ModFileScanData> scanData) {
 
 		//Ensure BTParamterTypes registers its defaults
 		BTParameterTypes.BLOCKSTATE_BUILDER.getTypeClass();
@@ -214,10 +208,9 @@ public class ScriptSetup {
 				ScriptSetup.transform(Biome::getBaseTemperature), (loc, f) -> climate.apply(loc).setTemperature(Optional.of(f)));
 		BiomePropertyManager.TEMPERATURE_MODIFIER = new EarlyBiomeProperty<>(TemperatureModifier.class,
 				null, (loc, f) -> climate.apply(loc).setTemperatureModifier(f));
-		BiomePropertyManager.DOWNFALL = new EarlyBiomeProperty<>(Float.class,
-				ScriptSetup.transform(Biome::getDownfall), (loc, f) -> climate.apply(loc).setDownfall(Optional.of(f)));
-		BiomePropertyManager.PRECIPITATION = new EarlyBiomeProperty<>(Precipitation.class,
-				ScriptSetup.transform(Biome::getPrecipitation), (loc, f) -> climate.apply(loc).setPrecipitation(f));
+
+		BiomePropertyManager.CLIMATE_SETTINGS = new EarlyBiomeProperty<>(ClimateSettings.class,
+				null, (loc, f) -> climate.apply(loc).setClimateSettings(f));
 
 		BiomePropertyManager.GRASS_COLOR = new EarlyBiomeProperty<>(Integer.class,
 				ScriptSetup.transform(loc -> loc.getSpecialEffects().getGrassColorOverride().orElseThrow()), (loc, f) -> effects.apply(loc).setGrassColorOverride(OptionalInt.of(f)));
@@ -235,8 +228,8 @@ public class ScriptSetup {
 		BiomePropertyManager.SPAWN_PROBABILITY = new EarlyBiomeProperty<>(Float.class,
 				ScriptSetup.transform(loc -> loc.getMobSettings().getCreatureProbability()), (loc, f) -> spawn.apply(loc).setProbability(Optional.of(f)));
 
-		BiomePropertyManager.AMBIENT_LOOP_SOUND = new EarlyBiomeProperty<>(String.class, ScriptSetup.transform(loc -> RegistryNameHelper.getRegistryName(loc.getAmbientLoop().orElseThrow()).toString()),
-				(loc, f) -> effects.apply(loc).setAmbientSoundLoop(Optional.of(ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(f)))));
+		BiomePropertyManager.AMBIENT_LOOP_SOUND = new EarlyBiomeProperty<>(String.class, ScriptSetup.transform(loc -> RegistryNameHelper.getRegistryNameS(loc.getAmbientLoop().orElseThrow().value()).toString()),
+				(loc, f) -> effects.apply(loc).setAmbientSoundLoop(Optional.of(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.withDefaultNamespace(f)))));
 
 		BiomePropertyManager.DISABLE_SLEEP = new EarlyBiomeProperty<>(Boolean.class, (loc, l) -> BiomeModificationManager.forBiome(loc).isDisableSleep(),
 				(loc, f) -> BiomeModificationManager.forBiome(loc).setDisableSleep(f));

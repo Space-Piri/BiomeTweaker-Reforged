@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 public final class ObfNameHelper {
 

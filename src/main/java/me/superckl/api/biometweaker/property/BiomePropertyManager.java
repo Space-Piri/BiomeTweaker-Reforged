@@ -16,8 +16,7 @@ public class BiomePropertyManager {
 
 	public static EarlyBiomeProperty<Float> TEMPERATURE;
 	public static EarlyBiomeProperty<Biome.TemperatureModifier> TEMPERATURE_MODIFIER;
-	public static EarlyBiomeProperty<Biome.Precipitation> PRECIPITATION;
-	public static EarlyBiomeProperty<Float> DOWNFALL;
+	public static EarlyBiomeProperty<Biome.ClimateSettings> CLIMATE_SETTINGS;
 	public static EarlyBiomeProperty<Integer> GRASS_COLOR;
 	public static EarlyBiomeProperty<Integer> FOLIAGE_COLOR;
 	public static EarlyBiomeProperty<Integer> WATER_COLOR;

@@ -21,7 +21,7 @@ public class ScriptCommandSetScriptStage extends ScriptCommand{
 			BiomeTweaker.LOG.error("Invalid application stage specified!");
 			return;
 		}
-		BiomeTweaker.getINSTANCE().getCommandManager().setCurrentStage(stage);
+		BiomeTweaker.getCommandManager().setCurrentStage(stage);
 	}
 
 	@Override

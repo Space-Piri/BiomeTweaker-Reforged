@@ -38,7 +38,7 @@ public class ScriptCommandRegisterFeature extends StagedScriptCommand{
 
 	@Override
 	public void perform() throws Exception {
-		final File jsonFile = new File(BiomeTweaker.getINSTANCE().getFeatureDir(), this.name+".json");
+		final File jsonFile = new File(BiomeTweaker.getFeatureDir(), this.name+".json");
 		if(!jsonFile.isFile())
 			throw new IllegalArgumentException("Failed to find placed feature file "+jsonFile);
 		try (FileReader reader = new FileReader(jsonFile)){
@@ -50,7 +50,7 @@ public class ScriptCommandRegisterFeature extends StagedScriptCommand{
 				if(!BiomeTweakerAPI.MOD_ID.equals(featureLoc.getNamespace()))
 					throw new IllegalArgumentException(String.format("Failed to find configured feature %s. Location must belong to biometweaker to be created.", featureLoc));
 				BiomeTweaker.LOG.debug("Attempting to create and register configured feature %s", featureLoc);
-				final File configFile = new File(BiomeTweaker.getINSTANCE().getConfigedFeatureDir(), featureLoc.getPath()+".json");
+				final File configFile = new File(BiomeTweaker.getConfigedFeatureDir(), featureLoc.getPath()+".json");
 				if(!configFile.isFile())
 					throw new IllegalArgumentException("Failed to find configured feature file "+configFile);
 				try (FileReader configReader = new FileReader(configFile)){

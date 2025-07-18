@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public interface BiomeLookup {
 
@@ -31,22 +31,22 @@ public interface BiomeLookup {
 
 		@Override
 		public ResourceLocation key(final Biome biome) {
-			return ForgeRegistries.BIOMES.getKey(biome);
+			return DeferredHolder.BIOMES.getKey(biome);
 		}
 
 		@Override
 		public Biome value(final ResourceLocation loc) {
-			return ForgeRegistries.BIOMES.getValue(loc);
+			return NeoForgeRegistries.BIOMES.getValue(loc);
 		}
 
 		@Override
 		public Iterator<Biome> allValues() {
-			return ForgeRegistries.BIOMES.iterator();
+			return NeoForgeRegistries.BIOMES.iterator();
 		}
 
 		@Override
 		public Iterator<ResourceLocation> allKeys() {
-			return ForgeRegistries.BIOMES.getKeys().iterator();
+			return NeoForgeRegistries.BIOMES.getKeys().iterator();
 		}
 
 	}

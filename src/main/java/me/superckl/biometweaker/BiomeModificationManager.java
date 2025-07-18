@@ -40,11 +40,11 @@ import net.minecraft.world.level.levelgen.GenerationStep.Carving;
 import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
-import net.minecraftforge.common.world.BiomeSpecialEffectsBuilder;
-import net.minecraftforge.common.world.ClimateSettingsBuilder;
-import net.minecraftforge.common.world.MobSpawnSettingsBuilder;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.world.BiomeGenerationSettingsBuilder;
+import net.neoforged.neoforge.common.world.BiomeSpecialEffectsBuilder;
+import net.neoforged.neoforge.common.world.ClimateSettingsBuilder;
+import net.neoforged.neoforge.common.world.MobSpawnSettingsBuilder;
+import net.neoforged.registries.ForgeRegistries;
 
 public class BiomeModificationManager {
 
@@ -150,18 +150,18 @@ public class BiomeModificationManager {
 	@Data
 	public static class ClimateModification{
 
-		private Biome.Precipitation precipitation;
+		private Biome.ClimateSettings climateSettings;
+		private boolean precipitation = climateSettings.hasPrecipitation();
 		private Optional<Float> temperature = Optional.empty();
 		private Biome.TemperatureModifier temperatureModifier;
-		private Optional<Float> downfall = Optional.empty();
+		private float downfall = climateSettings.downfall();
 
 		public void modify(final ClimateSettingsBuilder val) {
-			if(this.precipitation != null)
-				val.setPrecipitation(this.precipitation);
+			val.setHasPrecipitation(this.precipitation);
 			if(this.temperatureModifier != null)
 				val.setTemperatureModifier(this.temperatureModifier);
 			this.temperature.ifPresent(val::setTemperature);
-			this.downfall.ifPresent(val::setDownfall);
+			val.setDownfall(this.downfall);
 		}
 
 	}
@@ -247,7 +247,7 @@ public class BiomeModificationManager {
 
 		public void doRemove(final MobSpawnSettingsBuilder val) {
 			this.allSpawns.forEach(type -> val.getSpawner(type).clear());
-			this.removedSpawns.forEach((type, loc) -> val.getSpawner(type).removeIf(spawner -> RegistryNameHelper.getRegistryName(spawner.type).equals(loc)));
+			this.removedSpawns.forEach((type, loc) -> val.getSpawner(type).removeIf(spawner -> RegistryNameHelper.getRegistryNameE(spawner.type).equals(loc)));
 		}
 
 		public void doAdd(final MobSpawnSettingsBuilder val) {

@@ -8,12 +8,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.client.event.ViewportEvent;
+import net.neoforged.common.neoforged;
+import net.neoforged.eventbus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 public class ClientEvents {
 
@@ -48,7 +48,7 @@ public class ClientEvents {
 
 		@SubscribeEvent
 		public static void clientSetup(final FMLClientSetupEvent e) {
-			e.enqueueWork(() -> MinecraftForge.EVENT_BUS.register(new ClientEvents()));
+			e.enqueueWork(() -> neoforged.EVENT_BUS.register(new ClientEvents()));
 			//ModLoadingContext.get().registerExtensionPoint(ConfigGuiFactory.class, () -> new ConfigGuiFactory((mc, screen) -> new ConfigGui(screen)));
 
 		}

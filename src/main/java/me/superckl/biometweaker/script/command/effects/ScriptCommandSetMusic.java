@@ -12,7 +12,7 @@ import me.superckl.biometweaker.script.object.TweakerScriptObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.registries.ForgeRegistries;
 
 @AutoRegister(classes = {BiomesScriptObject.class, TweakerScriptObject.class}, name = "setBackgroundMusic")
 public class ScriptCommandSetMusic extends StagedScriptCommand{

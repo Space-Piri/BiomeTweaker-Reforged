@@ -22,6 +22,7 @@ import com.mojang.serialization.JsonOps;
 
 import lombok.Cleanup;
 import me.superckl.api.superscript.util.WarningHelper;
+import me.superckl.biometweaker.Config;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.HolderSet;
@@ -39,18 +40,18 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class Output {
 
-	public static void generateOutputFiles(final RegistryAccess registry, final Registry<LevelStem> levelRegistry, final File baseDir){
+	public static void generateOutputFiles(final RegistryAccess registry, final File baseDir){
 		final DynamicOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registry);
 		final BiFunction<String, String, Function<Optional<JsonObject>, String>> namer = (key, def) -> opt ->
 		opt.map(obj -> new StringBuilder(obj.get(key).getAsString().replaceAll("[^a-zA-Z0-9.-]", "_")).append(".json").toString()).orElse(def);
 
-		if(Config.getInstance().getOutputBiomes().get()) {
+		if(Config.outputBiomes()) {
 			final File biomeDir = new File(baseDir, "/biome/");
-			final Registry<Biome> biomeReg = registry.ownedRegistryOrThrow(Registry.BIOME_REGISTRY);
+			final Registry<Biome> biomeReg = registry.registryOrThrow(Registry.BIOME_REGISTRY);
 			Output.genOutput(Streams.stream(biomeReg.iterator()), biomeDir, entry -> {
 				try {
 					final JsonObject obj = new JsonObject();
@@ -67,38 +68,38 @@ public class Output {
 			}, namer.apply("registry_name", "Biome"));
 		}
 
-		if(Config.getInstance().getOutputEntities().get()) {
-			final File entityDir = new File(baseDir, "/entity/");
-			Output.genOutput(Streams.stream(ForgeRegistries.ENTITY_TYPES.iterator()), entityDir, Output::entityTypeToJson, namer.apply("registry_name", "Entity"));
-		}
-
-		if(Config.getInstance().getOutputDims().get()) {
-			final File dimDir = new File(baseDir, "/dimension/");
-			Output.genOutput(levelRegistry.holders(), dimDir,
-					entry -> Output.serializeDynamic(entry, LevelStem.CODEC, ops), namer.apply("registry_name", "Dimension"));
-		}
-
-		if(Config.getInstance().getOutputFeatures().get()) {
-			final File featureDir = new File(baseDir, "/feature/");
-			Output.genOutput(registry.ownedRegistryOrThrow(Registry.PLACED_FEATURE_REGISTRY).holders(), featureDir,
-					holder -> Output.serializeDynamic(holder, PlacedFeature.DIRECT_CODEC, ops), namer.apply("registry_name", "Placed Feature"));
-
-			final File configDir = new File(featureDir, "config/");
-			Output.genOutput(registry.ownedRegistryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).holders(), configDir,
-					holder -> Output.serializeDynamic(holder, ConfiguredFeature.DIRECT_CODEC, ops), namer.apply("registry_name", "Configured Feature"));
-		}
-
-		if(Config.getInstance().getOutputCarvers().get()) {
-			final File featureDir = new File(baseDir, "/carver/");
-			Output.genOutput(registry.ownedRegistryOrThrow(Registry.CONFIGURED_CARVER_REGISTRY).holders(), featureDir,
-					holder -> Output.serializeDynamic(holder, ConfiguredWorldCarver.DIRECT_CODEC, ops), namer.apply("registry_name", "Configured Carver"));
-		}
+//		if(Config.outputEntities()) {
+//			final File entityDir = new File(baseDir, "/entity/");
+//			Output.genOutput(Streams.stream(ForgeRegistries.ENTITY_TYPES.iterator()), entityDir, Output::entityTypeToJson, namer.apply("registry_name", "Entity"));
+//		}
+//
+//		if(Config.getInstance().getOutputDims().get()) {
+//			final File dimDir = new File(baseDir, "/dimension/");
+//			Output.genOutput(levelRegistry.holders(), dimDir,
+//					entry -> Output.serializeDynamic(entry, LevelStem.CODEC, ops), namer.apply("registry_name", "Dimension"));
+//		}
+//
+//		if(Config.outputFeatures()) {
+//			final File featureDir = new File(baseDir, "/feature/");
+//			Output.genOutput(registry.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY).holders(), featureDir,
+//					holder -> Output.serializeDynamic(holder, PlacedFeature.DIRECT_CODEC, ops), namer.apply("registry_name", "Placed Feature"));
+//
+//			final File configDir = new File(featureDir, "config/");
+//			Output.genOutput(registry.registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).holders(), configDir,
+//					holder -> Output.serializeDynamic(holder, ConfiguredFeature.DIRECT_CODEC, ops), namer.apply("registry_name", "Configured Feature"));
+//		}
+//
+//		if(Config.outputCarvers()) {
+//			final File featureDir = new File(baseDir, "/carver/");
+//			Output.genOutput(registry.registryOrThrow(Registry.CONFIGURED_CARVER_REGISTRY).holders(), featureDir,
+//					holder -> Output.serializeDynamic(holder, ConfiguredWorldCarver.DIRECT_CODEC, ops), namer.apply("registry_name", "Configured Carver"));
+//		}
 	}
 
 	private static <T, V extends JsonElement> void genOutput(final Stream<T> values, final File dir, final Function<T, V> serializer, final Function<Optional<V>, String> namingStrategy) {
 		JsonArray array;
 		final String name = namingStrategy.apply(Optional.empty());
-		if(Config.getInstance().getOutputDims().get())
+		if(Config.outputDims())
 			try {
 				BiomeTweaker.LOG.info("Generating %s status report...", name);
 
@@ -123,23 +124,23 @@ public class Output {
 		return obj;
 	}
 
-	private static JsonObject entityTypeToJson(final EntityType<?> type) {
-		final JsonObject obj = new JsonObject();
-		obj.addProperty("registry_name", ForgeRegistries.ENTITY_TYPES.getKey(type).toString());
-		obj.addProperty("category", type.getCategory().name());
-		obj.addProperty("fire_immune", type.fireImmune());
-		obj.addProperty("summonable", type.canSummon());
-		obj.addProperty("spawn_far_from_player", type.canSpawnFarFromPlayer());
-		obj.addProperty("tracking_range", type.clientTrackingRange());
-		obj.addProperty("update_interval", type.updateInterval());
-		obj.addProperty("defaul_loot_table", type.getDefaultLootTable().toString());
-		final JsonObject size = new JsonObject();
-		size.addProperty("height", type.getDimensions().height);
-		size.addProperty("width", type.getDimensions().width);
-		size.addProperty("fixed", type.getDimensions().fixed);
-		obj.add("size", size);
-		return obj;
-	}
+//	private static JsonObject entityTypeToJson(final EntityType<?> type) {
+//		final JsonObject obj = new JsonObject();
+//		obj.addProperty("registry_name", ForgeRegistries.ENTITY_TYPES.getKey(type).toString());
+//		obj.addProperty("category", type.getCategory().name());
+//		obj.addProperty("fire_immune", type.fireImmune());
+//		obj.addProperty("summonable", type.canSummon());
+//		obj.addProperty("spawn_far_from_player", type.canSpawnFarFromPlayer());
+//		obj.addProperty("tracking_range", type.clientTrackingRange());
+//		obj.addProperty("update_interval", type.updateInterval());
+//		obj.addProperty("defaul_loot_table", type.getDefaultLootTable().toString());
+//		final JsonObject size = new JsonObject();
+//		size.addProperty("height", type.getDimensions().height);
+//		size.addProperty("width", type.getDimensions().width);
+//		size.addProperty("fixed", type.getDimensions().fixed);
+//		obj.add("size", size);
+//		return obj;
+//	}
 
 	private static void addGenInfo(final JsonObject obj, final Biome biome, final DynamicOps<JsonElement> ops) {
 		final BiomeGenerationSettings gen = biome.getGenerationSettings();
@@ -184,7 +185,7 @@ public class Output {
 	}
 
 	public static <T, V> V encode(final DynamicOps<? extends V> ops, final T data, final Codec<? super T> codec) {
-		final var result = codec.encodeStart(ops, data).get();
+		final var result = codec.encodeStart(ops, data).result();
 		if(result.right().isPresent())
 			throw new IllegalArgumentException(String.format("Failed to encode: %s", result.right().get().message()));
 		return result.left().get();
@@ -198,7 +199,7 @@ public class Output {
 
 	private static <T extends JsonElement> void writeArray(final JsonArray array, final File dir, final Function<Optional<T>, String> namingStrategy) throws IOException {
 		final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		if(Config.getInstance().getSeparateFiles().get())
+		if(Config.separateFiles())
 			for(final JsonElement ele:array){
 				final T obj = WarningHelper.uncheckedCast(ele);
 				final String fileName = namingStrategy.apply(Optional.of(obj));

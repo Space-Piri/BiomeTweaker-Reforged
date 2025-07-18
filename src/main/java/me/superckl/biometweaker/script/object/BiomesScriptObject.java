@@ -24,9 +24,9 @@ public class BiomesScriptObject extends BiomePackScriptObject{
 	@Override
 	public void addCommand(final ScriptCommand command) {
 		if(command instanceof final StagedScriptCommand bCommand &&
-				!bCommand.requiredStage().isValid(BiomeTweaker.getINSTANCE().getCommandManager().getCurrentStage()))
+				!bCommand.requiredStage().isValid(BiomeTweaker.getCommandManager().getCurrentStage()))
 			throw new IllegalStateException(String.format("Invalid application stage! Command requires stages %s but found stage %s",
-					bCommand.requiredStage().getValidStages(), BiomeTweaker.getINSTANCE().getCommandManager().getCurrentStage()));
+					bCommand.requiredStage().getValidStages(), BiomeTweaker.getCommandManager().getCurrentStage()));
 		BiomeTweakerAPI.getCommandAdder().accept(command);
 	}
 

@@ -4,8 +4,8 @@ package me.superckl.biometweaker;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mojang.logging.LogUtils;
+import net.neoforged.fml.ModContainer;
 
 import com.mojang.serialization.Codec;
 
@@ -22,28 +22,28 @@ import me.superckl.biometweaker.script.object.BiomesScriptObject;
 import me.superckl.biometweaker.script.object.TweakerScriptObject;
 import me.superckl.biometweaker.server.command.CommandOutput;
 import net.minecraft.commands.Commands;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.world.BiomeModifier;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import org.slf4j.Logger;
 
 @Mod(BiomeTweakerAPI.MOD_ID)
 public class BiomeTweaker {
 
 	@Getter
 	private static BiomeTweaker INSTANCE;
-	public static final Logger LOG = LogManager.getFormatterLogger(BiomeTweakerAPI.MOD_ID);
+	public static final Logger LOG = LogUtils.getLogger();
 	@Getter
 	private final BasicScriptCommandManager commandManager;
 	@Getter
@@ -58,11 +58,11 @@ public class BiomeTweaker {
 	private final File carverDir;
 
 	public static final DeferredRegister<Codec<? extends BiomeModifier>> BIOME_MODIFIER_SERIALIZERS =
-			DeferredRegister.create(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, BiomeTweakerAPI.MOD_ID);
-	public static final RegistryObject<Codec<MainBiomeModifier>> MAIN_MODIFIER_CODEC =
+			DeferredRegister.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS.registry(), BiomeTweakerAPI.MOD_ID);
+	public static final DeferredHolder<Codec<? extends BiomeModifier>, Codec<MainBiomeModifier>> MAIN_MODIFIER_CODEC =
 			BiomeTweaker.BIOME_MODIFIER_SERIALIZERS.register("main", () -> Codec.unit(MainBiomeModifier::new));
 
-	public BiomeTweaker() {
+	public BiomeTweaker(ModContainer modContainer) {
 		BiomeTweaker.INSTANCE = this;
 		ScriptSetup.setupScripts(ModList.get().getAllScanData());
 		ScriptSetup.initProperties();
@@ -82,13 +82,13 @@ public class BiomeTweaker {
 		BiomeTweakerAPI.setTweakerScriptObjectClass(TweakerScriptObject.class);
 		BiomeTweakerAPI.setCommandAdder(command -> this.commandManager.addCommand(command));
 
-		final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		final IEventBus bus = ModLoadingContext.get().getActiveContainer().getEventBus();
 
 		bus.addListener(this::commonSetup);
 		bus.addListener(this::loadComplete);
 		BiomeTweaker.BIOME_MODIFIER_SERIALIZERS.register(bus);
 
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.setup());
+		modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
 
 		this.parseScripts();
 
@@ -99,8 +99,8 @@ public class BiomeTweaker {
 	private void commonSetup(final FMLCommonSetupEvent e) {
 		e.enqueueWork(() -> {
 			this.commandManager.applyCommandsFor(ApplicationStage.SETUP);
-			MinecraftForge.EVENT_BUS.register(new BiomeEvents());
-			MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+			NeoForge.EVENT_BUS.register(new BiomeEvents());
+			NeoForge.EVENT_BUS.addListener(this::registerCommands);
 		});
 	}
 

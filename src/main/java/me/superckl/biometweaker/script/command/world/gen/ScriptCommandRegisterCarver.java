@@ -28,7 +28,7 @@ public class ScriptCommandRegisterCarver extends StagedScriptCommand{
 
 	@Override
 	public void perform() throws Exception {
-		final File jsonFile = new File(BiomeTweaker.getINSTANCE().getCarverDir(), this.name+".json");
+		final File jsonFile = new File(BiomeTweaker.getCarverDir(), this.name+".json");
 		if(!jsonFile.isFile())
 			throw new IllegalArgumentException("Failed to find carver file "+jsonFile);
 		try (FileReader reader = new FileReader(jsonFile)){

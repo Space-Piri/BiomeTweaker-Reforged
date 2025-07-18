@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.common.world.BiomeModifier;
-import net.minecraftforge.common.world.ModifiableBiomeInfo.BiomeInfo.Builder;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.ModifiableBiomeInfo.BiomeInfo.Builder;
 
 public record MainBiomeModifier() implements BiomeModifier {
 

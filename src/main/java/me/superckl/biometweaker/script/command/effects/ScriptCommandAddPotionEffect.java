@@ -11,7 +11,7 @@ import me.superckl.biometweaker.script.object.BiomesScriptObject;
 import me.superckl.biometweaker.script.object.TweakerScriptObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.registries.ForgeRegistries;
 
 @RequiredArgsConstructor
 @AutoRegister(classes = {BiomesScriptObject.class, TweakerScriptObject.class}, name = "addMobEffect")
